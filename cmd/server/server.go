@@ -26,7 +26,11 @@ func runApplication() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = cfg
+	logging.SetConfig(&logging.Config{
+		Encoding:    cfg.LoggingConfig.Encoding,
+		Level:       10,
+		Development: cfg.LoggingConfig.Development,
+	})
 
 }
 

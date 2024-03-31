@@ -9,4 +9,4 @@ RUN make build
 
 FROM alpine:3
 COPY --from=build /go/src/github.com/symonk/systemd-api/systemd-api /bin/systemd-api
-CMD /bin/systemdapi
+CMD /bin/system-api

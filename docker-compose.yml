@@ -9,6 +9,6 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./config/local.yaml:/config/config.yaml
-    command: systemdapi --conf /config/config.yaml
+      - ./configs/local.yaml:/configs/config.yaml
+    command: systemdapi --conf /configs/config.yaml
     restart: always

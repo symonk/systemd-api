@@ -7,7 +7,6 @@ logging:
   level: -1
   encoding: console
   development: true
-# Might want to cache?
 metrics:
   namespace: systemd-api
   subseystem:
