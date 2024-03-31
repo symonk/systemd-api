@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/symonk/systemd-api/pkg/logging"
 
@@ -31,6 +33,13 @@ func runApplication() {
 		Level:       10,
 		Development: cfg.LoggingConfig.Development,
 	})
+	defer logging.DefaultLogger().Sync()
+
+	app := fx.New(
+		fx.Provide(newServer, newEchohandler),
+		fx.Invoke(func(*http.Server) {}),
+	)
+	app.Run()
 
 }
 
@@ -64,4 +73,16 @@ func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 		},
 	})
 	return engine
+}
+
+type EchoHandler struct{}
+
+func newEchohandler() *EchoHandler {
+	return &EchoHandler{}
+}
+
+func (*EchoHandler) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	if _, err := io.Copy(w, r.Body); err != nil {
+		fmt.Fprintln(os.Stderr, "failed to handle request", err)
+	}
 }
