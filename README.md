@@ -10,6 +10,7 @@ over the wire.  It uses:
  * `fx` for dependency injection.
  * `testify` for unit testing.
  * `zap` for structured logging.
+ * `prometheus` & `grafana` for metrics and tracking.
 
  -----
 
