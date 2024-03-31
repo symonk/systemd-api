@@ -52,6 +52,7 @@ func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 					logging.DefaultLogger().Errorw("failed to close http server", "err", err)
 				}
 			}()
+			return nil
 		},
 		OnStop: func(ctx context.Context) error {
 			logging.FromContext(ctx).Info("Stopping rest api server")
