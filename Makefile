@@ -21,4 +21,3 @@ docker:
 compose.%:
 		$(eval CMD = ${subst compose.,,$(@)})
 		tools/script/compose.sh $(CMD)
-

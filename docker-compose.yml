@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  systemd-api:
+    image: systemd-api
+    build:
+      context: .
+      dockerfile: cmd/server/Dockerfile
+    container_name: systemd-api
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config/local.yaml:/config/config.yaml
+    command: systemdapi --conf /config/config.yaml
+    restart: always

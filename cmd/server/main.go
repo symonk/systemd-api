@@ -1,6 +1,9 @@
-package cmd
+package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -17,4 +20,11 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	rootCmd.PersistentFlags().StringVarP(&configFile, "conf", "", "", "config file path")
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		log.Printf("Failed launching the root command. %v", err)
+		os.Exit(1)
+	}
 }
