@@ -1,8 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"go.uber.org/fx"
+	"honnef.co/go/tools/config"
 )
 
 var serverCmd = &cobra.Command{
@@ -20,7 +27,7 @@ func runApplication() {
 
 }
 
-func newServer(lc fx.Lifecycle, cfg *config.Config) *gin.Engine {
+func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	engine := gin.New()
 
@@ -29,7 +36,24 @@ func newServer(lc fx.Lifecycle, cfg *config.Config) *gin.Engine {
 	// Set up metrics?
 
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%d", cfg.)
+		Addr:         fmt.Sprintf(":%d", cfg.ServerConfig.Port),
+		Handler:      engine,
+		ReadTimeout:  cfg.ServerConfig.ReadTimeout,
+		WriteTimeout: cfg.ServerConfig.WriteTimeout,
 	}
-
+	lifecycle.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			logging.FromContext(ctx).Infof("Starting rest api server :%d", cfg.ServerConfig.Port)
+			go func() {
+				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+					logging.DefaultLogger().Errorw("failed to close http server", "err", err)
+				}
+			}()
+		},
+		OnStop: func(ctx context.Context) error {
+			logging.FromContext(ctx).Info("Stopping rest api server")
+			return server.Shutdown(ctx)
+		},
+	})
+	return engine
 }
