@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type contextKey = string
+type contextKey string
 
 const loggerKey = contextKey("logger")
 
