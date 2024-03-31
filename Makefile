@@ -6,7 +6,7 @@ generate:
 		go generate ./...
 
 build:
-		go build -a -o systemd-server $(MODULE)/cmd/server
+		go build -a -o systemd-api $(MODULE)/cmd/server
 
 test:
 		go clean -testcache

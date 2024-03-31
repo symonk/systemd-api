@@ -6,10 +6,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/symonk/systemd-api/pkg/logging"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"github.com/symonk/systemd-api/internal/config"
 	"go.uber.org/fx"
-	"honnef.co/go/tools/config"
 )
 
 var serverCmd = &cobra.Command{
@@ -20,10 +22,11 @@ var serverCmd = &cobra.Command{
 }
 
 func runApplication() {
-	config, err := config.Load(configFile)
+	cfg, err := config.LoadConfig(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
+	_ = cfg
 
 }
 
