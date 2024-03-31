@@ -1,6 +1,11 @@
 package config
 
-import "time"
+import (
+	"log"
+	"time"
+
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	ServerConfig ServerConfig `json:"server"`
@@ -25,5 +30,16 @@ type MetricsConfig struct {
 }
 
 func LoadConfig(configPath string) (*Config, error) {
-	return nil, nil
+	var conf Config
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME/.systemdapi")
+	viper.AddConfigPath(configPath)
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("No config found at %s or %s", configPath, "$HOME/.systemapi/")
+	}
+	if err := viper.Unmarshal(&conf); err != nil {
+		log.Fatal("Unable to unmarshal json into config")
+	}
+	return &conf, nil
 }
