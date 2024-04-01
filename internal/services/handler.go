@@ -25,6 +25,6 @@ func RouteV1(cfg *config.Config, h *Handler, r *gin.Engine) {
 	serviceV1 := v1.Group("services")
 	serviceV1.Use()
 	{
-		serviceV1.GET("/services", h.services)
+		serviceV1.GET("/", h.services)
 	}
 }

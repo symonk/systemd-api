@@ -51,6 +51,7 @@ func runApplication() {
 		fx.Provide(services.New),
 		fx.Invoke(services.RouteV1),
 		fx.Invoke(printConfigInfo),
+		fx.Invoke(logRoutes),
 	)
 	app.Run()
 }
@@ -86,4 +87,10 @@ func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 func printConfigInfo(cfg *config.Config) {
 	b, _ := json.MarshalIndent(&cfg, "", " ")
 	logging.DefaultLogger().Infof("config information\n%s", string(b))
+}
+
+func logRoutes(l *zap.Logger, r *gin.Engine) {
+	for _, item := range r.Routes() {
+		l.Sugar().Infof("method: %s, path: %s", item.Method, item.Path)
+	}
 }
