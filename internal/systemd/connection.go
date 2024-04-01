@@ -15,7 +15,7 @@ func NewServiceInspector(l *zap.Logger) *ServiceInspector {
 	ctx := context.Background()
 	dbus, err := dbus.NewSystemdConnectionContext(ctx)
 	if err != nil {
-		l.Sugar().Fatalf("Cannot establish a connection to systemd over dbus. %w", err)
+		l.Sugar().Fatalf("Cannot establish a connection to systemd over dbus. %v", err)
 	}
 	return &ServiceInspector{
 		sysd: dbus,
