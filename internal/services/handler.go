@@ -1,6 +1,8 @@
 package services
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/symonk/systemd-api/internal/config"
 )
@@ -12,7 +14,7 @@ func New() *Handler {
 }
 
 func (h *Handler) services(c *gin.Context) {
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"message": "Hello World",
 	})
 }
