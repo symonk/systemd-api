@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -29,14 +29,15 @@ func runApplication() {
 		log.Fatal(err)
 	}
 	logging.SetConfig(&logging.Config{
-		Encoding:    cfg.LoggingConfig.Encoding,
+		Encoding: cfg.LoggingConfig.Encoding,
+		// Todo: Fix level serialization.
 		Level:       10,
 		Development: cfg.LoggingConfig.Development,
 	})
 	defer logging.DefaultLogger().Sync()
 
 	app := fx.New(
-		fx.Supply(config),
+		fx.Supply(cfg),
 		fx.Supply(logging.DefaultLogger().Desugar()),
 		fx.Provide(newServer, newEchohandler),
 		fx.Invoke(func(*http.Server) {}),

@@ -1,9 +1,6 @@
-package main
+package server
 
 import (
-	"log"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
@@ -22,9 +19,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "", "", "config file path")
 }
 
-func main() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Printf("Failed launching the root command. %v", err)
-		os.Exit(1)
-	}
+func Execute() error {
+	return rootCmd.Execute()
 }
