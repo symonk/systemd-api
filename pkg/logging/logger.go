@@ -15,7 +15,7 @@ const loggerKey = contextKey("logger")
 
 var (
 	defaultLogger     *zap.SugaredLogger
-	defaultLoggerOnce *sync.Once
+	defaultLoggerOnce sync.Once
 )
 
 var config = &Config{

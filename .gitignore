@@ -21,3 +21,4 @@
 go.work
 
 systemd-api
+__debug_bin*

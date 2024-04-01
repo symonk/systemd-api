@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os"
+	"time"
 
 	"github.com/symonk/systemd-api/pkg/logging"
 
@@ -14,6 +14,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/symonk/systemd-api/internal/config"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var serverCmd = &cobra.Command{
@@ -31,7 +34,7 @@ func runApplication() {
 	logging.SetConfig(&logging.Config{
 		Encoding: cfg.LoggingConfig.Encoding,
 		// Todo: Fix level serialization.
-		Level:       10,
+		Level:       zapcore.Level(cfg.LoggingConfig.Level),
 		Development: cfg.LoggingConfig.Development,
 	})
 	defer logging.DefaultLogger().Sync()
@@ -39,11 +42,14 @@ func runApplication() {
 	app := fx.New(
 		fx.Supply(cfg),
 		fx.Supply(logging.DefaultLogger().Desugar()),
-		fx.Provide(newServer, newEchohandler),
-		fx.Invoke(func(*http.Server) {}),
+		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
+			return &fxevent.ZapLogger{Logger: logging.DefaultLogger().Desugar()}
+		}),
+		fx.StopTimeout(cfg.ServerConfig.GracefulShutdown*time.Second),
+		fx.Provide(newServer),
+		fx.Invoke(printConfigInfo),
 	)
 	app.Run()
-
 }
 
 func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
@@ -74,14 +80,7 @@ func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 	return router
 }
 
-type EchoHandler struct{}
-
-func newEchohandler() *EchoHandler {
-	return &EchoHandler{}
-}
-
-func (*EchoHandler) serveHTTP(w http.ResponseWriter, r *http.Request) {
-	if _, err := io.Copy(w, r.Body); err != nil {
-		fmt.Fprintln(os.Stderr, "failed to handle request", err)
-	}
+func printConfigInfo(cfg *config.Config) {
+	b, _ := json.MarshalIndent(&cfg, "", " ")
+	logging.DefaultLogger().Infof("config information\n%s", string(b))
 }
