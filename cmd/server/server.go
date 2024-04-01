@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"github.com/symonk/systemd-api/internal/config"
+	"github.com/symonk/systemd-api/internal/services"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -47,6 +48,8 @@ func runApplication() {
 		}),
 		fx.StopTimeout(cfg.ServerConfig.GracefulShutdown*time.Second),
 		fx.Provide(newServer),
+		fx.Provide(services.New),
+		fx.Invoke(services.RouteV1),
 		fx.Invoke(printConfigInfo),
 	)
 	app.Run()

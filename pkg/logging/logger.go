@@ -51,7 +51,7 @@ func NewLogger(config *Config) *zap.SugaredLogger {
 		Level:            zap.NewAtomicLevelAt(config.Level),
 		Development:      config.Development,
 		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
+		ErrorOutputPaths: []string{"stdout"},
 	}
 	logger, err := cfg.Build()
 	if err != nil {
