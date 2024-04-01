@@ -36,6 +36,8 @@ func runApplication() {
 	defer logging.DefaultLogger().Sync()
 
 	app := fx.New(
+		fx.Supply(config),
+		fx.Supply(logging.DefaultLogger().Desugar()),
 		fx.Provide(newServer, newEchohandler),
 		fx.Invoke(func(*http.Server) {}),
 	)
@@ -45,15 +47,11 @@ func runApplication() {
 
 func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.DebugMode)
-	engine := gin.New()
-
-	// Set up logging middleware?
-
-	// Set up metrics?
+	router := gin.New()
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.ServerConfig.Port),
-		Handler:      engine,
+		Handler:      router,
 		ReadTimeout:  cfg.ServerConfig.ReadTimeout,
 		WriteTimeout: cfg.ServerConfig.WriteTimeout,
 	}
@@ -72,7 +70,7 @@ func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 			return server.Shutdown(ctx)
 		},
 	})
-	return engine
+	return router
 }
 
 type EchoHandler struct{}
