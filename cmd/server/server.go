@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/symonk/systemd-api/internal/config"
 	"github.com/symonk/systemd-api/internal/services"
+	"github.com/symonk/systemd-api/internal/systemd"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -33,8 +34,7 @@ func runApplication() {
 		log.Fatal(err)
 	}
 	logging.SetConfig(&logging.Config{
-		Encoding: cfg.LoggingConfig.Encoding,
-		// Todo: Fix level serialization.
+		Encoding:    cfg.LoggingConfig.Encoding,
 		Level:       zapcore.Level(cfg.LoggingConfig.Level),
 		Development: cfg.LoggingConfig.Development,
 	})
@@ -47,8 +47,9 @@ func runApplication() {
 			return &fxevent.ZapLogger{Logger: logging.DefaultLogger().Desugar()}
 		}),
 		fx.StopTimeout(cfg.ServerConfig.GracefulShutdown*time.Second),
-		fx.Provide(newServer),
-		fx.Provide(services.New),
+		fx.Provide(launchHttpServer),
+		fx.Provide(services.NewHandler),
+		fx.Provide(systemd.NewServiceInspector),
 		fx.Invoke(services.RouteV1),
 		fx.Invoke(printConfigInfo),
 		fx.Invoke(logRoutes),
@@ -56,7 +57,7 @@ func runApplication() {
 	app.Run()
 }
 
-func newServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
+func launchHttpServer(lifecycle fx.Lifecycle, cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	router := gin.New()
 
